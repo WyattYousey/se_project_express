@@ -1,0 +1,30 @@
+{
+  "name": "wtwr_backend",
+  "version": "0.1.0",
+  "description": "A weather app that tells users what options of clothing would be most comfortable based on the temperature.",
+  "keywords": [
+    "Weather",
+    "App",
+    "what",
+    "to",
+    "wear"
+  ],
+  "homepage": "https://github.com/Yournd/se_project_express#readme",
+  "bugs": {
+    "url": "https://github.com/Yournd/se_project_express/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yournd/se_project_express.git"
+  },
+  "license": "ISC",
+  "author": "Wyatt Yousey",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
