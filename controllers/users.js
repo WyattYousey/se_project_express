@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const errorHandling = require("../helpers/helpers");
+const errorHandling = require("../utils/helpers");
 
 // GET /users
 

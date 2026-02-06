@@ -1,5 +1,5 @@
 const ClothingItem = require("../models/clothingItem");
-const errorHandling = require("../helpers/helpers");
+const errorHandling = require("../utils/helpers");
 
 //POST items
 
