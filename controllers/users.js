@@ -5,7 +5,6 @@ const errorHandling = require("../utils/helpers");
 
 const getUsers = (req, res) => {
   User.find({})
-    .orFail()
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       errorHandling(err, res);

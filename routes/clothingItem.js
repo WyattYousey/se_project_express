@@ -17,10 +17,6 @@ router.post("/", createItem);
 
 router.get("/", getItems);
 
-// PUT
-
-router.put("/:itemId", updateItem);
-
 // DELETE
 
 router.delete("/:itemId", deleteItem);
