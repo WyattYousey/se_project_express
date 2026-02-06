@@ -4,7 +4,7 @@ const auth = require("../utils/middleware");
 const clothingItem = require("./clothingItem");
 const userRouter = require("./users");
 
-router.use("/users", auth, userRouter);
-router.use("/items", auth, clothingItem);
+router.use("/users", userRouter);
+router.use("/items", clothingItem);
 
 module.exports = router;
