@@ -1,7 +1,7 @@
 const ClothingItem = require("../models/clothingItem");
 const errorHandling = require("../utils/helpers");
 
-//POST items
+// POST items
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -14,7 +14,7 @@ const createItem = (req, res) => {
     });
 };
 
-//GET items
+// GET items
 
 const getItems = (req, res) => {
   ClothingItem.find({})
@@ -25,7 +25,7 @@ const getItems = (req, res) => {
     });
 };
 
-//PUT items
+// PUT items
 
 const updateItem = (req, res) => {
   const { itemId } = req.params;
@@ -39,7 +39,7 @@ const updateItem = (req, res) => {
     });
 };
 
-//DELETE item
+// DELETE item
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
@@ -52,7 +52,7 @@ const deleteItem = (req, res) => {
     });
 };
 
-//LIKE item
+// LIKE item
 
 const likeItem = (req, res) => {
   const { itemId } = req.params;
@@ -69,7 +69,7 @@ const likeItem = (req, res) => {
     });
 };
 
-//DISLIKE item
+// DISLIKE item
 
 const dislikeItem = (req, res) => {
   const { itemId } = req.params;
