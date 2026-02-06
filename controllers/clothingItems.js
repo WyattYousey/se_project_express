@@ -1,21 +1,16 @@
 const ClothingItem = require("../models/clothingItem");
+const errorHandling = require("../helpers/helpers");
 
-//POST /clothingItem
+//POST items
 
 const createItem = (req, res) => {
-  console.log(res);
-  console.log(req.body);
-
   const { name, weather, imageUrl } = req.body;
+  const owner = req.user._id;
 
-  ClothingItem.create({ name, weather, imageUrl })
-    .then((item) => res.send({ data: item }))
+  ClothingItem.create({ name, weather, imageUrl, owner })
+    .then((item) => res.status(201).send({ data: item }))
     .catch((err) => {
-      console.error(err);
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
-      }
-      return res.status(500).send({ message: err.message });
+      errorHandling(err, res);
     });
 };
 
@@ -23,9 +18,10 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send(items))
+    .orFail()
+    .then((items) => res.status(200).send({ data: items }))
     .catch((err) => {
-      res.status(500).send({ message: "Get Items Failed" });
+      errorHandling(err, res);
     });
 };
 
@@ -38,8 +34,8 @@ const updateItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
-    .catch((e) => {
-      res.status(500).send({ message: "Error from updateItem" });
+    .catch((err) => {
+      errorHandling(err, res);
     });
 };
 
@@ -48,13 +44,53 @@ const updateItem = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
-    .then((item) => res.status(204).send({ data: item }))
-    .catch((e) => {
-      res.status(500).send({ message: "Error from deleteItem" });
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      errorHandling(err, res);
     });
 };
 
-module.exports = { createItem, getItems, updateItem, deleteItem };
+//LIKE item
+
+const likeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      errorHandling(err, res);
+    });
+};
+
+//DISLIKE item
+
+const dislikeItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndUpdate(
+    itemId,
+    { $pull: { likes: req.user._id } },
+    { new: true }
+  )
+    .orFail()
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      errorHandling(err, res);
+    });
+};
+
+module.exports = {
+  createItem,
+  getItems,
+  updateItem,
+  deleteItem,
+  likeItem,
+  dislikeItem,
+};

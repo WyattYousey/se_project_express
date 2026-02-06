@@ -5,6 +5,8 @@ const {
   getItems,
   updateItem,
   deleteItem,
+  likeItem,
+  dislikeItem,
 } = require("../controllers/clothingItems");
 
 //POST
@@ -22,5 +24,15 @@ router.put("/:itemId", updateItem);
 //DELETE
 
 router.delete("/:itemId", deleteItem);
+
+//Likes routes
+
+//PUT
+
+router.put("/:itemId/likes", likeItem);
+
+//DELETE
+
+router.delete("/:itemId/likes", dislikeItem);
 
 module.exports = router;
