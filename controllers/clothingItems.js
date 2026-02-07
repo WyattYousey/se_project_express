@@ -1,5 +1,6 @@
 const ClothingItem = require("../models/clothingItem");
 const errorHandling = require("../utils/helpers");
+const { NOT_FOUND } = require("../utils/errors");
 
 // POST items
 
@@ -8,7 +9,7 @@ const createItem = (req, res) => {
   const owner = req.user._id;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => res.status(201).send({ data: item }))
+    .then((item) => res.status(201).send(item))
     .catch((err) => {
       errorHandling(err, res);
     });
@@ -18,7 +19,7 @@ const createItem = (req, res) => {
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.status(200).send({ data: items }))
+    .then((item) => res.send(item))
     .catch((err) => {
       errorHandling(err, res);
     });
@@ -30,8 +31,12 @@ const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .orFail(() => {
+      const error = new Error("User ID not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => res.send(item))
     .catch((err) => {
       errorHandling(err, res);
     });
@@ -47,8 +52,12 @@ const likeItem = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .orFail(() => {
+      const error = new Error("User ID not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => res.send(item))
     .catch((err) => {
       errorHandling(err, res);
     });
@@ -64,8 +73,12 @@ const dislikeItem = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .orFail(() => {
+      const error = new Error("User ID not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
+    .then((item) => res.send(item))
     .catch((err) => {
       errorHandling(err, res);
     });
@@ -74,7 +87,6 @@ const dislikeItem = (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   likeItem,
   dislikeItem,
