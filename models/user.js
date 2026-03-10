@@ -22,13 +22,11 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "The email field is required"],
+    unique: true,
     validate: {
-      validator(value) {
-        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        return regex.test(value);
-      },
-      message: "You must enter a valid Email address",
+      validator: (v) => isEmail(v),
     },
+    message: "You must enter a valid Email",
   },
   password: {
     type: String,
@@ -38,12 +36,30 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.statics.findUserByCredentials = function findUserByCredentials(
+  email,
+  password
+) {
+  return this.findOne({ email }).then((user) => {
+    if (!user) {
+      return Promise.reject(new Error("Incorrect email or password"));
+    }
+
+    return bcrypt.compare(password, user.password).then((matched) => {
+      if (!matched) {
+        return Promise.reject(new Error("Incorrect email or password"));
+      }
+      return user;
+    });
+  });
+};
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
   try {
-    const salt = await bcrypt.genSalt(10); // 10 salt rounds are a good default
+    const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     return next();
   } catch (error) {

@@ -1,6 +1,8 @@
 const User = require("../models/user");
 const errorHandling = require("../utils/helpers");
 const { NOT_FOUND } = require("../utils/errors");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = process.env.JWT_SECRET;
 
 // GET /users
 
@@ -32,9 +34,26 @@ const getUser = (req, res) => {
 // POST /users
 
 const createUser = (req, res) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email, password } = req.body;
 
-  User.create({ name, avatar })
+  User.create({ name, avatar, email, password })
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
+    })
+    .catch((err) => {
+      errorHandling(err, res);
+    });
+};
+
+// USER LOGIN
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
     .then((user) => {
       res.status(201).send(user);
     })
@@ -43,4 +62,4 @@ const createUser = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getUser, createUser };
+module.exports = { getUsers, getUser, createUser, login };
