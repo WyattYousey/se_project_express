@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const errorHandling = require("../utils/helpers");
-const { NOT_FOUND } = require("../utils/errors");
+const { NOT_FOUND, BAD_REQUEST } = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/lib");
 
 // GET /users
@@ -41,6 +41,11 @@ const editProfile = (req, res) => {
     { name, avatar },
     { new: true, runValidators: true }
   )
+    .orFail(() => {
+      const error = new Error("User ID not found");
+      error.statusCode = NOT_FOUND;
+      throw error;
+    })
     .then((newUser) => res.send(newUser))
     .catch((err) => {
       errorHandling(err, res);
@@ -77,7 +82,7 @@ const login = (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).send({
+    return res.status(BAD_REQUEST).send({
       message: "Email and password are required",
     });
   }
