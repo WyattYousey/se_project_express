@@ -23,35 +23,41 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "The email field is required"],
     unique: true,
+    lowercase: true, // MongoDb uniqueness checks are case sensitive
+    trim: true,
     validate: {
-      validator: (v) => isEmail(v),
+      validator: (v) => validator.isEmail(v),
+      message: "You must enter a valid Email",
     },
-    message: "You must enter a valid Email",
   },
   password: {
     type: String,
     required: true,
-    minlength: 4,
-    maxLength: 25,
+    minlength: 6,
+    select: false,
   },
 });
 
-userSchema.statics.findUserByCredentials = function findUserByCredentials(
-  email,
-  password
-) {
-  return this.findOne({ email }).then((user) => {
-    if (!user) {
-      return Promise.reject(new Error("Incorrect email or password"));
-    }
-
-    return bcrypt.compare(password, user.password).then((matched) => {
-      if (!matched) {
-        return Promise.reject(new Error("Incorrect email or password"));
+userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email: email.toLowerCase() })
+    .select("+password")
+    .then((user) => {
+      if (!user) {
+        const error = new Error("Incorrect email or password");
+        error.statusCode = 401;
+        return Promise.reject(error);
       }
-      return user;
+
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          const error = new Error("Incorrect email or password");
+          error.statusCode = 401;
+          return Promise.reject(error);
+        }
+
+        return user;
+      });
     });
-  });
 };
 
 userSchema.pre("save", async function (next) {

@@ -1,8 +1,14 @@
-const User = require("../models/user");
-const errorHandling = require("../utils/helpers");
-const { NOT_FOUND } = require("../utils/errors");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = process.env.JWT_SECRET;
+
+const bcrypt = require("bcrypt");
+
+const User = require("../models/user");
+
+const errorHandling = require("../utils/helpers");
+
+const { NOT_FOUND } = require("../utils/errors");
+
+const JWT_SECRET = require("../utils/lib");
 
 // GET /users
 
@@ -16,8 +22,8 @@ const getUsers = (req, res) => {
 
 // GET /users:id
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
+const getCurrentUser = (req, res) => {
+  const { userId } = req.user;
 
   User.findById(userId)
     .orFail(() => {
@@ -36,12 +42,19 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  User.create({ name, avatar, email, password })
+  User.create({
+    name,
+    avatar,
+    email,
+    password,
+  })
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
-        expiresIn: "7d",
+      res.status(201).send({
+        name: user.name,
+        avatar: user.avatar,
+        _id: user._id,
+        email: user.email,
       });
-      res.send({ token });
     })
     .catch((err) => {
       errorHandling(err, res);
@@ -53,13 +66,22 @@ const createUser = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  User.findUserByCredentials(email, password)
+  if (!email || !password) {
+    return res.status(400).send({
+      message: "Email and password are required",
+    });
+  }
+
+  User.findUserByCredentials(email.toLowerCase(), password)
     .then((user) => {
-      res.status(201).send(user);
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+      res.send({ token });
     })
     .catch((err) => {
       errorHandling(err, res);
     });
 };
 
-module.exports = { getUsers, getUser, createUser, login };
+module.exports = { getUsers, getCurrentUser, createUser, login };

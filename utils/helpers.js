@@ -1,29 +1,45 @@
 const {
   BAD_REQUEST,
-  INTERNAL_SERVER_ERROR,
   CONFLICT_ERROR,
+  INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
 } = require("./errors");
 
 const errorHandling = (err, res) => {
-  console.error(err);
+  console.log(err);
 
-  if (err.statusCode) {
-    return res.status(err.statusCode).send({ message: err.message });
+  // Mongo duplicate email
+  if (err.code === 11000) {
+    return res.status(CONFLICT_ERROR).send({
+      message: "User with that email already exists",
+    });
   }
 
-  if (err.statusCode === CONFLICT_ERROR) {
-    return res
-      .status(409)
-      .send({ message: "This email is already taken. Please choose another." });
+  // Invalid data
+  if (err.name === "ValidationError") {
+    return res.status(BAD_REQUEST).send({
+      message: err.message,
+    });
   }
 
-  if (err.name === "CastError" || err.name === "ValidationError") {
-    return res.status(BAD_REQUEST).send({ message: err.message });
+  // Invalid Mongo ID
+  if (err.name === "CastError") {
+    return res.status(BAD_REQUEST).send({
+      message: "Invalid ID format",
+    });
   }
 
-  return res
-    .status(INTERNAL_SERVER_ERROR)
-    .send({ message: "An error has occurred on the server" });
+  // Authentication errors
+  if (err.message === "Incorrect email or password") {
+    return res.status(UNAUTHORIZED).send({
+      message: err.message,
+    });
+  }
+
+  // Fallback
+  return res.status(err.statusCode || INTERNAL_SERVER_ERROR).send({
+    message: err.message || "An error has occurred on the server",
+  });
 };
 
 module.exports = errorHandling;
