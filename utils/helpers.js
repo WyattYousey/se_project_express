@@ -3,6 +3,7 @@ const {
   CONFLICT_ERROR,
   INTERNAL_SERVER_ERROR,
   UNAUTHORIZED,
+  FORBIDDEN,
 } = require("./errors");
 
 const errorHandling = (err, res) => {
@@ -30,8 +31,14 @@ const errorHandling = (err, res) => {
   }
 
   // Authentication errors
-  if (err.message === "Incorrect email or password") {
+  if (err.statusCode === UNAUTHORIZED) {
     return res.status(UNAUTHORIZED).send({
+      message: err.message,
+    });
+  }
+
+  if (err.statusCode === FORBIDDEN) {
+    return res.status(FORBIDDEN).send({
       message: err.message,
     });
   }

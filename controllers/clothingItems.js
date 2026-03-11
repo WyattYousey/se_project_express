@@ -1,6 +1,6 @@
 const ClothingItem = require("../models/clothingItem");
 const errorHandling = require("../utils/helpers");
-const { NOT_FOUND } = require("../utils/errors");
+const { NOT_FOUND, FORBIDDEN } = require("../utils/errors");
 
 // POST items
 
@@ -26,24 +26,29 @@ const getItems = (req, res) => {
 };
 
 // DELETE item
-
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  ClothingItem.findById(itemId)
     .orFail(() => {
-      const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
+      const err = new Error("Item not found");
+      err.statusCode = NOT_FOUND;
+      throw err;
     })
-    .then((item) => res.send(item))
-    .catch((err) => {
-      errorHandling(err, res);
-    });
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        const err = new Error("Forbidden");
+        err.statusCode = FORBIDDEN;
+        throw err;
+      }
+
+      return item.deleteOne();
+    })
+    .then(() => res.send({ message: "Item deleted" }))
+    .catch((err) => errorHandling(err, res));
 };
 
 // LIKE item
-
 const likeItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -53,9 +58,9 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
+      const err = new Error("Item not found");
+      err.statusCode = NOT_FOUND;
+      throw err;
     })
     .then((item) => res.send(item))
     .catch((err) => {
@@ -74,9 +79,9 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
+      const err = new Error("Item not found");
+      err.statusCode = NOT_FOUND;
+      throw err;
     })
     .then((item) => res.send(item))
     .catch((err) => {

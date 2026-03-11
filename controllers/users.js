@@ -1,14 +1,8 @@
 const jwt = require("jsonwebtoken");
-
-const bcrypt = require("bcrypt");
-
 const User = require("../models/user");
-
 const errorHandling = require("../utils/helpers");
-
 const { NOT_FOUND } = require("../utils/errors");
-
-const JWT_SECRET = require("../utils/lib");
+const { JWT_SECRET } = require("../utils/lib");
 
 // GET /users
 
@@ -20,18 +14,34 @@ const getUsers = (req, res) => {
     });
 };
 
-// GET /users:id
+// GET /users/me
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.user;
+  const { _id } = req.user;
 
-  User.findById(userId)
+  User.findById(_id)
     .orFail(() => {
       const error = new Error("User ID not found");
       error.statusCode = NOT_FOUND;
       throw error;
     })
     .then((user) => res.send(user))
+    .catch((err) => {
+      errorHandling(err, res);
+    });
+};
+
+// PATCH /users /me
+const editProfile = (req, res) => {
+  const { name, avatar } = req.body;
+  const { _id } = req.user;
+
+  User.findByIdAndUpdate(
+    _id,
+    { name, avatar },
+    { new: true, runValidators: true }
+  )
+    .then((newUser) => res.send(newUser))
     .catch((err) => {
       errorHandling(err, res);
     });
@@ -84,4 +94,4 @@ const login = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getCurrentUser, createUser, login };
+module.exports = { getUsers, getCurrentUser, createUser, login, editProfile };
