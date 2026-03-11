@@ -82,7 +82,7 @@ const login = (req, res) => {
     });
   }
 
-  User.findUserByCredentials(email.toLowerCase(), password)
+  return User.findUserByCredentials(email.toLowerCase(), password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",

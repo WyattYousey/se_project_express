@@ -11,7 +11,6 @@ const handleAuthError = (res) => {
 const extractBearerToken = (header) => header.split(" ")[1];
 
 module.exports = (req, res, next) => {
-  console.log(req.headers);
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
@@ -24,8 +23,6 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    console.log("VERIFY ERROR:", err);
-    console.log("SECRET USED:", JWT_SECRET);
     return handleAuthError(res);
   }
 

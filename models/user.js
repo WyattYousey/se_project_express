@@ -38,7 +38,10 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = function findUserByCredentials(
+  email,
+  password
+) {
   return this.findOne({ email: email.toLowerCase() })
     .select("+password")
     .then((user) => {
@@ -60,7 +63,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     });
 };
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function hashPassword(next) {
   if (!this.isModified("password")) {
     return next();
   }
