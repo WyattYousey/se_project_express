@@ -7,7 +7,7 @@ const {
 } = require("./errors");
 
 const errorHandling = (err, res) => {
-  console.log(err);
+  console.error(err);
 
   // Mongo duplicate email
   if (err.code === 11000) {

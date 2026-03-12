@@ -1,43 +1,50 @@
 # WTWR Backend
 
+## Project Pitch Video
+
+Watch the project overview here:  
+[https://www.loom.com/share/ab6db5eeb10d4ab0b9f7ada20378a089](https://www.loom.com/share/ab6db5eeb10d4ab0b9f7ada20378a089)
+
+---
+
 ## Overview
 
-WTWR (What To Wear Right) is a Node.js and Express-based backend that supports a weather-driven wardrobe application. This service is responsible for managing users and clothing items, persisting data with MongoDB, and exposing a RESTful API that enables the frontend to surface optimal clothing options based on weather categories (`hot`, `warm`, `cold`).
+WTWR (What To Wear Right) is a Node.js and Express backend for a weather-based wardrobe application. It manages users and clothing items, stores data in MongoDB, and exposes a REST API used by the frontend to suggest clothing based on weather categories (`hot`, `warm`, `cold`).
 
-The backend emphasizes clean data modeling, predictable API behavior, and scalability, making it a strong foundation for future enhancements such as authentication, third-party weather API integration, and production deployment.
+The project focuses on clean API design, clear data modeling, and maintainable backend architecture.
 
 ---
 
 ## Tech Stack
 
 - **Node.js** – JavaScript runtime
-- **Express.js** – HTTP server and routing framework
-- **MongoDB** – NoSQL document database
-- **Mongoose** – Object Data Modeling (ODM) library
-- **Validator.js** – Schema-level input validation
+- **Express.js** – Server framework
+- **MongoDB** – NoSQL database
+- **Mongoose** – MongoDB object modeling
+- **Validator.js** – Schema validation
 
 ---
 
 ## Core Features
 
 - Create, retrieve, and delete clothing items
-- Associate clothing items with specific users
+- Associate clothing items with users
 - Like and dislike clothing items
-- Categorize clothing by weather type (`hot`, `warm`, `cold`)
+- Categorize clothing by weather (`hot`, `warm`, `cold`)
 - Create and retrieve users
-- Centralized error handling for consistent API responses
+- Consistent API error handling
 
 ---
 
-## API Architecture
+## API Structure
 
-The backend follows RESTful conventions and maintains a clear separation of concerns:
+The backend follows a clear REST architecture:
 
-- **Routes** define endpoint structure
-- **Controllers** encapsulate request and response logic
-- **Models** enforce schema definitions and validation rules
+- **Routes** – Define API endpoints
+- **Controllers** – Handle request and response logic
+- **Models** – Define database schemas and validation
 
-This structure improves maintainability and makes the codebase easier to extend as the application grows.
+This separation keeps the project organized and easy to extend.
 
 ---
 
@@ -46,54 +53,50 @@ This structure improves maintainability and makes the codebase easier to extend 
 ### User
 
 - `name` – Required string with length constraints
-- `avatar` – Required URL with schema-level validation
+- `avatar` – Required URL with validation
 
 ### Clothing Item
 
 - `name` – Required string with length constraints
-- `weather` – Enum-based categorization (`hot`, `warm`, `cold`)
-- `imageUrl` – Required, validated URL
-- `owner` – Reference to a user document
+- `weather` – Enum: `hot`, `warm`, `cold`
+- `imageUrl` – Required URL
+- `owner` – Reference to a user
 - `likes` – Array of user references
 - `createdAt` – Automatically generated timestamp
 
-Mongoose schemas are used to enforce data integrity at the database layer, reducing the need for excessive validation logic in controllers.
+Mongoose schemas help enforce validation and maintain data integrity.
 
 ---
 
-## Notable Practices & Techniques
+## Development Practices
 
-- Schema-driven validation using Mongoose and Validator.js
-- Controller abstraction to keep route handlers concise
-- Centralized error handling for predictable API responses
-- MongoDB document relationships via ObjectId references
-- Express middleware for request preprocessing
-- Atomic update operators (`$addToSet`, `$pull`) to manage likes safely
-
-These practices reflect real-world backend patterns commonly used in production Express applications.
+- Schema validation with Mongoose and Validator.js
+- Controller-based route logic
+- Centralized error handling
+- MongoDB document relationships using ObjectIds
+- Express middleware for request processing
+- Atomic MongoDB operators (`$addToSet`, `$pull`) for managing likes safely
 
 ---
 
 ## Current Limitations
 
-- Authentication is mocked via middleware (no JWT or sessions yet)
-- Weather data is user-provided (no external weather API integration)
-- Configured for local MongoDB usage only
-
-These limitations are intentional and leave clear room for future iterations.
+- Authentication is currently mocked via middleware
+- Weather data is manually provided
+- Configured for local MongoDB usage
 
 ---
 
 ## Future Improvements
 
-- Implement authentication and authorization (JWT-based)
-- Integrate a real-time weather API
-- Add request-level validation (e.g., Joi or Celebrate)
-- Introduce pagination and query-based filtering
-- Prepare environment configuration for production deployment
+- Add JWT-based authentication
+- Integrate a real weather API
+- Add request validation (Joi / Celebrate)
+- Implement pagination and filtering
+- Prepare environment configuration for production
 
 ---
 
 ## Purpose
 
-This backend was built as a learning-focused yet portfolio-ready project. It demonstrates mid-level backend development concepts such as API architecture, data modeling, and database interactions while remaining readable, maintainable, and extensible.
+This project was built to practice backend development using modern Node.js tools. It demonstrates REST API design, database modeling, and scalable backend structure while remaining simple and readable.

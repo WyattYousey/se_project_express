@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const errorHandling = require("../utils/helpers");
 const { NOT_FOUND, BAD_REQUEST } = require("../utils/errors");
@@ -57,12 +58,23 @@ const editProfile = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
-  User.create({
-    name,
-    avatar,
-    email,
-    password,
-  })
+  if (!email || !password) {
+    res.status(BAD_REQUEST).send({
+      message: "The 'email' and 'password' fields are required",
+    });
+    return;
+  }
+
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
     .then((user) => {
       res.status(201).send({
         name: user.name,
