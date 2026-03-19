@@ -58,6 +58,14 @@ const editProfile = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
+  let verifiedAvatar;
+
+  if (avatar === "") {
+    verifiedAvatar = null;
+  } else {
+    verifiedAvatar = avatar;
+  }
+
   if (!email || !password) {
     res.status(BAD_REQUEST).send({
       message: "The 'email' and 'password' fields are required",
@@ -70,7 +78,7 @@ const createUser = (req, res) => {
     .then((hash) =>
       User.create({
         name,
-        avatar,
+        verifiedAvatar,
         email,
         password: hash,
       })
