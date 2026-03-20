@@ -25,7 +25,7 @@ router.delete("/:itemId", auth, deleteItem);
 
 // PUT
 
-router.put("/:itemId/likes", auth, likeItem);
+router.patch("/:itemId/likes", auth, likeItem);
 
 // DELETE
 

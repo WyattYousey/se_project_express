@@ -37,11 +37,15 @@ const editProfile = (req, res) => {
   const { name, avatar } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(
-    _id,
-    { name, avatar },
-    { new: true, runValidators: true }
-  )
+  const updateData = {
+    name,
+    ...(avatar !== "" && { avatar }), // only include avatar if not empty
+  };
+
+  User.findByIdAndUpdate(_id, updateData, {
+    new: true,
+    runValidators: true,
+  })
     .orFail(() => {
       const error = new Error("User ID not found");
       error.statusCode = NOT_FOUND;
@@ -78,7 +82,7 @@ const createUser = (req, res) => {
     .then((hash) =>
       User.create({
         name,
-        verifiedAvatar,
+        avatar: verifiedAvatar,
         email,
         password: hash,
       })
