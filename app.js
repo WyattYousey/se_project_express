@@ -8,7 +8,7 @@ const app = express();
 const { PORT = 3001 } = process.env;
 
 mongoose
-  .connect("http://localhost:3001")
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
     console.log("Connected to DB");
   })
