@@ -1,39 +1,32 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const errorHandling = require("../utils/helpers");
-const { NOT_FOUND, BAD_REQUEST } = require("../utils/errors");
+const handleAllControllerErrors = require("../utils/helpers");
 const { JWT_SECRET } = require("../utils/lib");
+const NotFoundError = require("../errors/NotFoundError");
+const BadRequestError = require("../errors/BadRequestError");
 
 // GET /users
-
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => {
-      errorHandling(err, res);
-    });
+    .catch((err) => handleAllControllerErrors(err, next));
 };
 
 // GET /users/me
-
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
 
   User.findById(_id)
     .orFail(() => {
-      const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
+      throw new NotFoundError("No user with matching ID found");
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      errorHandling(err, res);
-    });
+    .catch((err) => handleAllControllerErrors(err, next));
 };
 
 // PATCH /users /me
-const editProfile = (req, res) => {
+const editProfile = (req, res, next) => {
   const { name, avatar } = req.body;
   const { _id } = req.user;
 
@@ -47,19 +40,14 @@ const editProfile = (req, res) => {
     runValidators: true,
   })
     .orFail(() => {
-      const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND;
-      throw error;
+      throw new NotFoundError("No user with matching ID found");
     })
     .then((newUser) => res.send(newUser))
-    .catch((err) => {
-      errorHandling(err, res);
-    });
+    .catch((err) => handleAllControllerErrors(err, next));
 };
 
 // POST /users
-
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
 
   let verifiedAvatar;
@@ -71,10 +59,7 @@ const createUser = (req, res) => {
   }
 
   if (!email || !password) {
-    res.status(BAD_REQUEST).send({
-      message: "The 'email' and 'password' fields are required",
-    });
-    return;
+    throw new BadRequestError("The email or password are required");
   }
 
   bcrypt
@@ -95,32 +80,28 @@ const createUser = (req, res) => {
         email: user.email,
       });
     })
-    .catch((err) => {
-      errorHandling(err, res);
-    });
+    .catch((err) => handleAllControllerErrors(err, next));
 };
 
 // USER LOGIN
-
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(BAD_REQUEST).send({
-      message: "Email and password are required",
-    });
+    throw new BadRequestError("The email or password are required");
   }
 
   return User.findUserByCredentials(email.toLowerCase(), password)
+    .orFail(() => {
+      throw new NotFoundError("No user found");
+    })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
       res.send({ token });
     })
-    .catch((err) => {
-      errorHandling(err, res);
-    });
+    .catch((err) => handleAllControllerErrors(err, next));
 };
 
 module.exports = { getUsers, getCurrentUser, createUser, login, editProfile };

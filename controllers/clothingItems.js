@@ -1,55 +1,52 @@
 const ClothingItem = require("../models/clothingItem");
-const errorHandling = require("../utils/helpers");
-const { NOT_FOUND, FORBIDDEN } = require("../utils/errors");
+const handleAllControllerErrors = require("../utils/helpers");
+const NotFoundError = require("../errors/NotFoundError");
+const ForbiddenError = require("../errors/ForbiddenError");
 
 // POST items
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
   ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send(item))
     .catch((err) => {
-      errorHandling(err, res);
+      handleAllControllerErrors(err, next)
     });
 };
 
 // GET items
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((item) => res.send(item))
     .catch((err) => {
-      errorHandling(err, res);
+      handleAllControllerErrors(err, next);
     });
 };
 
 // DELETE item
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findById(itemId)
     .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError("No item with matching ID found");
     })
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        const err = new Error("Forbidden");
-        err.statusCode = FORBIDDEN;
-        throw err;
+        throw new ForbiddenError('You do not have permission to access this resource')
       }
 
       return item.deleteOne();
     })
     .then(() => res.send({ message: "Item deleted" }))
-    .catch((err) => errorHandling(err, res));
+    .catch((err) => handleAllControllerErrors(err, next));
 };
 
 // LIKE item
-const likeItem = (req, res) => {
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndUpdate(
@@ -58,19 +55,17 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError('No item with matching ID found')
     })
     .then((item) => res.send(item))
     .catch((err) => {
-      errorHandling(err, res);
+      handleAllControllerErrors(err, next)
     });
 };
 
 // DISLIKE item
 
-const dislikeItem = (req, res) => {
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
 
   ClothingItem.findByIdAndUpdate(
@@ -79,13 +74,11 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .orFail(() => {
-      const err = new Error("Item not found");
-      err.statusCode = NOT_FOUND;
-      throw err;
+      throw new NotFoundError('No item with matching ID found')
     })
     .then((item) => res.send(item))
     .catch((err) => {
-      errorHandling(err, res);
+      handleAllControllerErrors(err, next);
     });
 };
 
