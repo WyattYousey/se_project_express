@@ -92,9 +92,6 @@ const login = (req, res, next) => {
   }
 
   return User.findUserByCredentials(email.toLowerCase(), password)
-    .orFail(() => {
-      throw new NotFoundError("No user found");
-    })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
