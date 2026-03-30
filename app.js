@@ -10,10 +10,10 @@ require("dotenv").config();
 const app = express();
 
 const { PORT = 3001 } = process.env;
-const { CONNECTION_URI } = process.env;
+const { MONGODB_URI } = process.env;
 
 mongoose
-  .connect(CONNECTION_URI)
+  .connect(MONGODB_URI)
   .then(() => {
     console.log("Connected to DB");
   })
