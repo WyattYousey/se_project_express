@@ -2,11 +2,13 @@
 
 ## Project Pitch Video
 
-Watch the project overview here:  
+-Watch the project overview here:  
 [https://www.loom.com/share/ab6db5eeb10d4ab0b9f7ada20378a089](https://www.loom.com/share/ab6db5eeb10d4ab0b9f7ada20378a089)
-Check out the frontend repo here:
+
+-Check out the frontend repo here:
 [https://github.com/WyattYousey/se_project_react_WTWR](https://github.com/WyattYousey/se_project_react_WTWR)
-Check out the live demo here:
+
+-Check out the live demo here:
 [https://whatstheweather.flowtemp.ro/](https://whatstheweather.flowtemp.ro/)
 
 ---
