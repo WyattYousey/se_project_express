@@ -8,6 +8,7 @@ const {
   dislikeItem,
 } = require("../controllers/clothingItems");
 const auth = require("../middleware/auth");
+const { validateId } = require("../middleware/validation");
 
 // POST
 
@@ -19,16 +20,16 @@ router.get("/", getItems);
 
 // DELETE
 
-router.delete("/:itemId", auth, deleteItem);
+router.delete("/:itemId", validateId, auth, deleteItem);
 
 // Likes routes
 
 // PUT
 
-router.patch("/:itemId/likes", auth, likeItem);
+router.patch("/:itemId/likes", validateId, auth, likeItem);
 
 // DELETE
 
-router.delete("/:itemId/likes", auth, dislikeItem);
+router.delete("/:itemId/likes", validateId, auth, dislikeItem);
 
 module.exports = router;

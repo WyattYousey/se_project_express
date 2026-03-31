@@ -1,4 +1,5 @@
 const { Joi, celebrate } = require("celebrate");
+const { ObjectId } = require("mongoose");
 const validator = require("validator");
 
 const validateURL = (value, helpers) => {
@@ -20,6 +21,8 @@ module.exports.validateCardBody = celebrate({
       "string.empty": 'The "imageUrl" field must be filled in',
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
+
+    weather: Joi.string().required().valid("hot", "warm", "cold"),
   }),
 });
 
@@ -36,14 +39,14 @@ module.exports.validateUserBody = celebrate({
       "string.uri": 'the "imageUrl" field must be a valid url',
     }),
 
-      email: Joi.string().required().email().messages({
-          "string.empty": 'The email field must be filled in',
-          "string.email": 'the "email" field must be a valid email'
-      }),
-      
-      password: Joi.string().required().messages({
-          "string.empty": 'The password field must be filled in'
-      })
+    email: Joi.string().required().email().messages({
+      "string.empty": "The email field must be filled in",
+      "string.email": 'the "email" field must be a valid email',
+    }),
+
+    password: Joi.string().required().messages({
+      "string.empty": "The password field must be filled in",
+    }),
   }),
 });
 
@@ -55,17 +58,20 @@ module.exports.validateAuthenticationLogIn = celebrate({
     }),
 
     password: Joi.string().required().messages({
-        "string.empty": "The password field must be filled in",
+      "string.empty": "The password field must be filled in",
     }),
-}),
+  }),
 });
 
-module.exports.validateIds = celebrate({
-    params: Joi.object().keys({
-        _id: Joi.string().hex().min(24).required().messages({
-            "string.empty": 'No ID provided',
-            "string.min": 'The minimum length of the "name" field is 24',
-            "string.hex": 'The ID must be a valid hexadecimal string',
-        })
-    })
-})
+module.exports.validateId = celebrate({
+  params: Joi.object().keys({
+    itemId: Joi.string()
+      .required()
+      .custom((value, helpers) => {
+        if (ObjectId.isValid(value)) {
+          return value;
+        }
+        return helpers.message("Invalid id");
+      }),
+  }),
+});
