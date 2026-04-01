@@ -63,33 +63,21 @@ const createUser = (req, res, next) => {
     throw new BadRequestError("The email or password are required");
   }
 
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new ConflictError(
-        "The user with the provided email already exists"
-      );
-    } else {
-      return bcrypt
-        .hash(password, 10)
-        .then((hash) =>
-          User.create({
-            name,
-            avatar: verifiedAvatar,
-            email,
-            password: hash,
-          })
-        )
-        .then((newUser) => {
-          res.status(201).send({
-            name: newUser.name,
-            avatar: newUser.avatar,
-            _id: newUser._id,
-            email: newUser.email,
-          });
-        })
-        .catch((err) => handleAllControllerErrors(err, next));
-    }
-  });
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        throw new ConflictError(
+          "The user with the provided email already exists"
+        );
+      } else {
+        return bcrypt.hash(password, 10);
+      }
+    })
+    .then((hash) =>
+      User.create({ name, avatar: verifiedAvatar, email, password: hash })
+    )
+    .then((user) => res.status(201).send(user))
+    .catch((err) => handleAllControllerErrors(err));
 };
 
 // USER LOGIN
